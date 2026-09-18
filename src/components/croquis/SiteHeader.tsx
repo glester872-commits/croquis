@@ -69,6 +69,10 @@ function ThumbNav() {
         'flex items-center gap-x-6 overflow-x-auto border-t border-studio-600 bg-studio-800 px-5',
         '[scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
         'pb-[env(safe-area-inset-bottom)]',
+        // A row that can hold more than it shows says so at its own
+        // edge, the way a strip of contact prints keeps fading into
+        // the next frame instead of stopping square at the light box.
+        '[mask-image:linear-gradient(to_right,transparent,black_14px,black_calc(100%-28px),transparent)]',
       )}
     >
       {LINKS.map((link) => (

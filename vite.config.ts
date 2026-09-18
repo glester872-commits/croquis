@@ -65,6 +65,7 @@ function devApi(): Plugin {
 }
 
 export default defineConfig({
+  base: process.env.GITHUB_PAGES ? '/croquis/' : '/',
   plugins: [react(), tailwindcss(), devApi()],
   resolve: {
     alias: {

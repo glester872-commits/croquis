@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx oxlint *)",
+      "Bash(npm run *)",
+      "Bash(ls \"C:\\\\Users\\\\glest\\\\.claude\\\\skills\\\\impeccable\\\\scripts\\\\\" 2>&1)",
+      "Bash(/c/Users/glest/.claude/skills/impeccable/scripts/impeccable context *)",
+      "Bash(/c/Users/glest/.claude/skills/impeccable/scripts/impeccable detect *)",
+      "Bash(npx tsc *)"
+    ]
+  }
+}

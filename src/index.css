@@ -1,0 +1,853 @@
+@import '@fontsource-variable/bodoni-moda';
+@import '@fontsource-variable/bodoni-moda/opsz-italic.css';
+@import '@fontsource-variable/archivo';
+/* Latin only: the mono face carries metadata, numbering and figures,
+   all of it Spanish. The cyrillic, vietnamese and latin-ext cuts were
+   never downloaded — they carry a unicode-range — but they were still
+   being emitted into the build. */
+@import '@fontsource/ibm-plex-mono/latin-400.css';
+@import '@fontsource/ibm-plex-mono/latin-500.css';
+@import "tailwindcss";
+
+/* Croquis — design tokens.
+
+   THE LIGHT TABLE. The room was inverted on 18 September 2026. Croquis
+   is not a dark room any more: it is the light table a picture editor
+   works on, and the photograph is a print lying on it.
+
+   The token NAMES are unchanged on purpose. Every value moved; not one
+   call site had to. `studio-*` is still "the ground, from deepest to
+   lightest rule", `bone` is still "primary text" — what those roles
+   are made of is what changed. Renaming them would have been a
+   thousand-line diff to say the same thing. */
+
+@theme {
+
+  /* ── the ground: paper, not a room ─────────────────────────────
+     Same ladder as before, same job for each rung, opposite key. The
+     ground is the only surface allowed to be a colour at all, and it
+     is barely one: near-zero chroma, so a photograph laid on it never
+     has to fight a tint. */
+  --color-studio-900: #d4cec2;   /* deepest recess / the ground under a sheet */
+  --color-studio-800: #e6e1d9;   /* base canvas — the table itself      */
+  --color-studio-700: #efeae2;   /* raised surface — a sheet on it      */
+  --color-studio-600: #c5bfb4;   /* hairline, border                    */
+  --color-studio-500: #a9a294;   /* stronger rule                       */
+
+  /* ── ink: the information layer (discipline of A) ──────────────
+     What was bone on graphite is ink on paper. 13:1 at full strength,
+     and the quiet end still clears 4.5:1 — the caption grey that fails
+     everywhere else was the first thing checked. */
+  --color-bone: #191919;         /* primary text  — 13.1:1 on the table */
+  --color-bone-dim: #3f3a34;     /* ————————————— —  9.0:1              */
+  --color-bone-mute: #5c574f;    /* secondary text —  5.6:1             */
+  --color-paper: #f4f0e9;        /* a sheet laid on the table           */
+  --color-paper-ink: #191919;    /* text on that sheet                  */
+
+  /* ── type ON a photograph ──────────────────────────────────────
+     These do NOT invert. A caption over a print sits on whatever was
+     shot, and the scrim under it is dark, so its text stays light on
+     a light table exactly as it was on a dark one. The only tokens in
+     the system that ignore the ground. */
+  --color-plate: #f1ece4;
+  --color-plate-dim: #d8d2c8;
+
+  /* ── epistemic accents ─────────────────────────────────────────
+     The `-ink` cuts, which were declared months ago and never used
+     because there was no light ground to use them on. Both clear
+     4.5:1 on the table. Neither is ever a fill, a background or a
+     border of a surface: they mark, and that is all. */
+  --color-inference: #3d6285;        /* VISUAL INFERENCE — 5.0:1 */
+  --color-inference-ink: #3d6285;
+  --color-interpretation: #92503f;   /* INTERPRETATION   — 4.8:1 */
+  --color-interpretation-ink: #92503f;
+
+  /* ── the cloth ─────────────────────────────────────────────────
+     Inverted with the room, and for the reason the direction already
+     wrote down: a light curtain on a light ground is a backdrop, and
+     a backdrop cannot be a portal. On the table the cloth is dark. */
+  --color-cloth-base: #3a3631;
+  --color-cloth-mid: #2b2823;
+  --color-cloth-shadow: #171512;
+  --color-cloth-light: #575049;
+
+  /* ── type ──────────────────────────────────────────────────────
+     display  : wordmark + statements only
+     sans     : the working face
+     mono     : metadata, numbering, provenance only */
+  --font-display: "Bodoni Moda Variable", "Bodoni Moda", Georgia, "Times New Roman", serif;
+  --font-sans: "Archivo Variable", "Archivo", system-ui, -apple-system, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", monospace;
+
+  /* ── the display scale: three steps, not twenty-two ────────────
+     `direction-system.md §3` fixed D1/D2/D3 and §14 logged eleven
+     improvised clamps to sweep. By September there were twenty-two.
+     They are gone: these three are the only display sizes, and
+     `.u-statement` / `.u-title` are now names for D1 and D2 rather
+     than sizes of their own. */
+  --text-d1: clamp(42px, 6.2vw, 88px);
+  --text-d2: clamp(30px, 4.2vw, 52px);
+  --text-d3: clamp(23px, 2.8vw, 33px);
+
+  /* ── the three measures ────────────────────────────────────────
+     Thirteen column widths became three. The measure communicates the
+     register: at 62ch a line reads as text, at 44ch it reads as a
+     note in the margin. That difference is doing real work — it is
+     how the stylist's voice is known to be a voice. */
+  --page-measure: 1280px;
+  --measure-read: 62ch;
+  --measure-note: 44ch;
+
+  --page-gutter: clamp(20px, 3.4vw, 44px);
+  --page-top: clamp(2rem, 4vw, 3.75rem);
+  --page-bottom: clamp(5rem, 9vw, 8rem);
+
+  /* ── vertical rhythm ───────────────────────────────────────────
+     Four steps, and they are deliberately unequal: the contrast
+     between 5rem and 0.5rem IS the editorial rhythm. Even spacing
+     produces the product page. */
+  --rhythm-section: clamp(3rem, 5.5vw, 5rem);
+  --rhythm-block: clamp(1.75rem, 2.6vw, 2.5rem);
+  --rhythm-heading: clamp(1.25rem, 1.8vw, 1.75rem);
+  --rhythm-tight: 0.5rem;
+
+  /* ── motion ────────────────────────────────────────────────────
+     Nothing exceeds 500ms. Enter ease-out, exit ease-in. `draw` is
+     the one addition: the length of a hand drawing a leader line. */
+  --duration-fast: 120ms;
+  --duration-default: 200ms;
+  --duration-slow: 320ms;
+  --duration-draw: 220ms;
+  --ease-out-soft: cubic-bezier(0, 0, 0.2, 1);
+  --ease-in-soft: cubic-bezier(0.4, 0, 1, 1);
+  --ease-settle: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    background-color: var(--color-studio-800);
+    color: var(--color-bone);
+    font-family: var(--font-sans);
+    font-size: 15px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-bone);
+    outline-offset: 2px;
+  }
+
+  img {
+    display: block;
+    max-width: 100%;
+  }
+
+  button {
+    font: inherit;
+    color: inherit;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+  }
+
+  /* Touch. The grey box a phone paints over a tap belongs to no design
+     system, and the delay before it acts belongs to a web that still
+     had double-tap zoom. The :active states are the feedback instead —
+     the only feedback a finger ever gets, since a finger never hovers. */
+  a,
+  button,
+  select,
+  [role='button'] {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+
+  /* Reduced motion: the product must stay fully understandable.
+     Parallax and tilt are removed outright by the hooks; this is
+     the backstop for everything declarative.
+
+     Movement goes; feedback stays. Killing every transition to 0.01ms
+     also kills the colour change that tells somebody a control
+     answered them, so only the moving properties are dropped. */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      scroll-behavior: auto !important;
+      transition-property: color, background-color, border-color, outline-color, opacity !important;
+    }
+  }
+
+  /* The surfaces nobody draws still belong to the design. */
+  ::selection {
+    background-color: var(--color-bone);
+    color: var(--color-studio-800);
+  }
+
+  html {
+    scrollbar-gutter: stable;
+    scrollbar-color: var(--color-studio-500) var(--color-studio-800);
+    scrollbar-width: thin;
+    caret-color: var(--color-bone);
+  }
+}
+
+@layer components {
+  /* Bodoni carries an optical size axis: let the face redraw itself
+     for the size it is set at instead of scaling one master. This is
+     the whole difference between a serif that is big and a display
+     serif. Synthesis off, so a missing weight never gets faked. */
+  .font-display {
+    font-optical-sizing: auto;
+    font-synthesis: none;
+  }
+
+  /* ── the display steps ─────────────────────────────────────────
+     Law 1 of the type system, kept at last: Bodoni never carries
+     positive tracking. It was at +0.28em on the wordmark, which is
+     the tic of every fashion brand of the last decade. It is set
+     tight here, from -0.02 to -0.03em, and on a light ground a tight
+     Bodoni stays open instead of filling in — which is the optical
+     reason the law was broken in the first place. */
+  .u-d1,
+  .u-statement {
+    font-family: var(--font-display);
+    font-optical-sizing: auto;
+    font-synthesis: none;
+    font-weight: 400;
+    font-size: var(--text-d1);
+    line-height: 0.92;
+    letter-spacing: -0.03em;
+    text-wrap: balance;
+  }
+
+  .u-d2,
+  .u-title {
+    font-family: var(--font-display);
+    font-optical-sizing: auto;
+    font-synthesis: none;
+    font-weight: 400;
+    font-size: var(--text-d2);
+    line-height: 0.98;
+    letter-spacing: -0.028em;
+  }
+
+  .u-d3 {
+    font-family: var(--font-display);
+    font-optical-sizing: auto;
+    font-synthesis: none;
+    font-weight: 400;
+    font-size: var(--text-d3);
+    line-height: 1.1;
+    letter-spacing: -0.022em;
+  }
+
+  /* ── the stylist ───────────────────────────────────────────────
+     Bodoni italic was loaded in this file from the first commit and
+     used exactly once, on a marketing headline. It was reserved for
+     the machine's voice and never given it.
+
+     This is that voice. It is known by how it is set — italic, in
+     terracotta, at the note measure, in the margin — so the reading
+     needs no avatar, no bubble and no badge saying it came from a
+     model. A note that cannot anchor to a region or name a source
+     does not get published, which is the other half of the rule. */
+  .u-stylist {
+    font-family: var(--font-display);
+    font-optical-sizing: auto;
+    font-synthesis: none;
+    font-style: italic;
+    font-weight: 400;
+    font-size: clamp(17px, 1.5vw, 20px);
+    line-height: 1.42;
+    letter-spacing: -0.005em;
+    max-width: var(--measure-note);
+    color: var(--color-interpretation);
+    text-wrap: pretty;
+  }
+
+  /* Editorial metadata — the discipline borrowed from A.
+     Only ever used for metadata, numbering and provenance. */
+  .u-meta {
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    line-height: 1.4;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: var(--color-bone-mute);
+  }
+
+  .u-meta-sm {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    line-height: 1.4;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+    color: var(--color-bone-mute);
+  }
+
+  /* Mono, but a sentence rather than a label. Conditions, provenance,
+     footnotes: system voice, still read left to right as prose. */
+  .u-note {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    line-height: 1.6;
+    letter-spacing: 0.015em;
+    color: var(--color-bone-mute);
+  }
+
+  /* Mono, sentence case: the register for words rather than labels. */
+  .u-label {
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    line-height: 1.4;
+    letter-spacing: 0.02em;
+    color: var(--color-bone-mute);
+  }
+
+  /* ── the garment tag ───────────────────────────────────────────
+     A single value in a box: a visual code, a material, a piece.
+     Never a sentence — if it wraps, it is a note, not a tag.
+
+     It is the one place the product borrows from the thing it is
+     about. A tag sewn into a collar is mono, tiny, and it hangs from
+     a stitch rather than sitting in a pill. The stitch is the 1px
+     leader at its left edge; that is the whole reference, and it
+     stops there. */
+  .u-tag {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    line-height: 1.3;
+    letter-spacing: 0.03em;
+    color: var(--color-bone-dim);
+    padding: 6px 10px 6px 12px;
+    border: 1px solid var(--color-studio-600);
+  }
+
+  .u-tag::before {
+    content: '';
+    position: absolute;
+    left: -5px;
+    top: 50%;
+    width: 5px;
+    height: 1px;
+    background-color: var(--color-studio-500);
+  }
+
+  /* ── acts ──────────────────────────────────────────────────────
+     Three registers and no more: the filled act, the outlined act,
+     and the word you can click. Mono, because an act is a label and
+     labels are mono here. The hover inverts rather than fading:
+     opacity on a filled button is the hover of something that could
+     not decide what to do. */
+  .u-act {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding-inline: 1.5rem;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 1;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    border: 1px solid var(--color-bone);
+    background-color: var(--color-bone);
+    color: var(--color-studio-800);
+    transition:
+      background-color var(--duration-default) var(--ease-out-soft),
+      color var(--duration-default) var(--ease-out-soft);
+  }
+
+  @media (hover: hover) {
+    .u-act:hover {
+      background-color: transparent;
+      color: var(--color-bone);
+    }
+  }
+
+  .u-act:active:not(:disabled) {
+    background-color: var(--color-bone-dim);
+    color: var(--color-studio-800);
+    transition-duration: 0s;
+  }
+
+  .u-act:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
+  @media (hover: hover) {
+    .u-act:disabled:hover {
+      background-color: var(--color-bone);
+      color: var(--color-studio-800);
+    }
+  }
+
+  .u-act-quiet {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding-inline: 1.5rem;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 1;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    border: 1px solid var(--color-studio-500);
+    background-color: transparent;
+    color: var(--color-bone-dim);
+    transition:
+      border-color var(--duration-default) var(--ease-out-soft),
+      color var(--duration-default) var(--ease-out-soft);
+  }
+
+  @media (hover: hover) {
+    .u-act-quiet:hover {
+      border-color: var(--color-bone);
+      color: var(--color-bone);
+    }
+  }
+
+  .u-act-quiet:active {
+    border-color: var(--color-bone);
+    background-color: var(--color-bone);
+    color: var(--color-studio-800);
+    transition-duration: 0s;
+  }
+
+  /* A word that acts. No box: the rule under it is the affordance,
+     and it grows from the left so the gesture reads as a mark being
+     drawn rather than a state being toggled. */
+  .u-act-word {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    min-width: 44px;
+    position: relative;
+    color: var(--color-bone-mute);
+    transition: color var(--duration-fast) var(--ease-out-soft);
+  }
+
+  .u-act-word::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 6px;
+    height: 1px;
+    width: 100%;
+    background-color: currentColor;
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform var(--duration-default) var(--ease-settle);
+  }
+
+  @media (hover: hover) {
+    .u-act-word:hover {
+      color: var(--color-bone);
+    }
+
+    .u-act-word:hover::after {
+      transform: scaleX(1);
+    }
+  }
+
+  .u-act-word:focus-visible::after {
+    transform: scaleX(1);
+  }
+
+  /* On touch the rule does not grow — it is simply there, at once. */
+  .u-act-word:active {
+    color: var(--color-bone);
+    transition-duration: 0s;
+  }
+
+  .u-act-word:active::after {
+    transform: scaleX(1);
+    transition-duration: 0s;
+  }
+
+  /* ── fields ────────────────────────────────────────────────────
+     A rule to write on, not a box to fill in. Boxed inputs inside a
+     bordered panel were boxes inside boxes; the baseline alone says
+     "text goes here" and leaves the page to the type. */
+  .u-field {
+    width: 100%;
+    min-height: 44px;
+    padding: 0.5rem 0;
+    background-color: transparent;
+    border: 0;
+    border-bottom: 1px solid var(--color-studio-500);
+    border-radius: 0;
+    color: var(--color-bone);
+    font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 1.5;
+    transition:
+      border-color var(--duration-default) var(--ease-out-soft),
+      box-shadow var(--duration-default) var(--ease-out-soft);
+  }
+
+  .u-field::placeholder {
+    color: var(--color-bone-mute);
+  }
+
+  /* The rule thickens rather than a ring appearing around it: a
+     2px border would shift every baseline by a pixel on focus.
+
+     :focus as well as :focus-visible, deliberately. Having removed the
+     outline, the underline is the only indicator this field has, and
+     hanging the only indicator on :focus-visible alone left a field
+     that a keyboard had genuinely reached showing nothing at all. */
+  .u-field:focus,
+  .u-field:focus-visible {
+    outline: none;
+    border-bottom-color: var(--color-bone);
+    box-shadow: 0 1px 0 0 var(--color-bone);
+  }
+
+  textarea.u-field {
+    resize: vertical;
+    min-height: 4.5rem;
+  }
+
+  /* The browser draws this one. On graphite it drew it black on black
+     and needed inverting; on paper it is already ink on paper, so the
+     invert that used to be necessary would now be the bug. */
+  .u-field::-webkit-calendar-picker-indicator {
+    opacity: 0.6;
+    cursor: pointer;
+    transition: opacity var(--duration-fast) var(--ease-out-soft);
+  }
+
+  @media (hover: hover) {
+    .u-field::-webkit-calendar-picker-indicator:hover {
+      opacity: 1;
+    }
+  }
+
+  select.u-field option {
+    background-color: var(--color-studio-800);
+    color: var(--color-bone);
+  }
+
+  @media (max-width: 767px), (pointer: coarse) {
+    .u-field {
+      font-size: 16px;
+    }
+  }
+
+  /* ── navigation ────────────────────────────────────────────────
+     Where you are is a rule under the word. The box is tall enough
+     for a thumb; the rule stays against the type. */
+  .u-nav-link {
+    display: inline-flex;
+    align-items: flex-end;
+    min-height: 44px;
+    padding-bottom: 0.5rem;
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    color: var(--color-bone-dim);
+    border-bottom: 1px solid transparent;
+    transition: color var(--duration-fast) var(--ease-out-soft);
+  }
+
+  .u-num {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ── the page ──────────────────────────────────────────────────
+     Every surface sits on this: one gutter, one measure, one top. */
+  .u-page {
+    width: 100%;
+    max-width: var(--page-measure);
+    margin-inline: auto;
+    padding-inline: var(--page-gutter);
+    padding-top: var(--page-top);
+    padding-bottom: var(--page-bottom);
+  }
+
+  .u-page-flush {
+    width: 100%;
+    max-width: var(--page-measure);
+    margin-inline: auto;
+    padding-inline: var(--page-gutter);
+  }
+
+  /* ── the twelve-column plate ───────────────────────────────────
+     A fashion plate divides by 2, 3, 4 and 6, which is what the
+     wardrobe already used. Children span tracks; the asymmetry lives
+     in which tracks they take, not in a wrapper that centres a
+     smaller box. */
+  .u-plate-grid {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: clamp(16px, 2vw, 32px);
+  }
+
+  /* A reading column, hung off the page's left edge rather than
+     centred in a box of its own. The asymmetry is the composition. */
+  .u-read {
+    max-width: var(--measure-read);
+  }
+
+  /* The note in the margin. Narrower on purpose: the measure is what
+     tells a reader this is an aside and not the text. */
+  .u-note-col {
+    max-width: var(--measure-note);
+  }
+
+  /* ── type on photography ───────────────────────────────────────
+     A caption sits on somebody's photograph, and the photograph is
+     whatever they shot. The ground has to come from the plate, not
+     from hoping the shoes were dark. One scrim, defined once — and it
+     stays dark on the light table, because what it darkens is the
+     print, not the page. */
+  .u-plate-scrim {
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    display: block;
+    height: 42%;
+    pointer-events: none;
+    background: linear-gradient(
+      to top,
+      rgba(10, 10, 10, 0.94) 0%,
+      rgba(10, 10, 10, 0.82) 24%,
+      rgba(10, 10, 10, 0.45) 58%,
+      rgba(10, 10, 10, 0) 100%
+    );
+  }
+
+  /* Text over a photograph does not invert with the room. */
+  .u-plate-text {
+    color: var(--color-plate);
+  }
+
+  .u-plate-meta {
+    color: var(--color-plate-dim);
+  }
+
+  /* ── the print on the table ────────────────────────────────────
+     A photograph is a print lying on a surface, so it casts the
+     shadow a print casts: one pixel of contact, six per cent. Not an
+     elevation shadow — nothing here floats, and a card shadow under a
+     photograph is the fastest way to make an editorial page look like
+     a product grid. */
+  .u-print {
+    box-shadow: 0 1px 2px rgba(25, 25, 25, 0.06);
+  }
+
+  /* A sheet: the annotation surface, a step lighter than the table.
+     No border, no radius, no shadow — it is told apart by value and
+     by the air around it, the way one sheet of paper on another is. */
+  .u-sheet {
+    background-color: var(--color-paper);
+    color: var(--color-paper-ink);
+  }
+
+  /* ── the instruments ───────────────────────────────────────────
+     Four marks and no icon set: anchor, leader line, proportion
+     bracket, focus region. They are apparatus, not iconography, and
+     they only ever appear over a photograph — never in the chrome. */
+  .u-anchor {
+    position: absolute;
+    width: 7px;
+    height: 7px;
+    background-color: var(--color-inference);
+    transform: translate(-50%, -50%);
+  }
+
+  .u-leader {
+    stroke: var(--color-inference);
+    stroke-width: 1;
+    fill: none;
+    vector-effect: non-scaling-stroke;
+  }
+
+  /* A leader line is DRAWN, not faded in. One reads as somebody
+     drawing it; the other reads as a CSS layer arriving. */
+  .u-leader-draw {
+    stroke-dasharray: var(--leader-length, 240);
+    stroke-dashoffset: var(--leader-length, 240);
+    animation: croquis-draw var(--duration-draw) var(--ease-out-soft) forwards;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .u-leader-draw {
+      stroke-dashoffset: 0;
+      animation: none;
+    }
+  }
+
+  /* The bidirectional pair. Pointer on a datum outlines its region;
+     pointer on a region raises its datum. Both directions are one
+     declarative state, `data-linked`, so neither side owns it. */
+  .u-linkable {
+    transition:
+      color var(--duration-fast) var(--ease-out-soft),
+      opacity var(--duration-fast) var(--ease-out-soft);
+  }
+
+  .u-linkable[data-linked='dim'] {
+    opacity: 0.4;
+  }
+
+  .u-linkable[data-linked='on'] {
+    color: var(--color-inference);
+  }
+
+  .u-region {
+    position: absolute;
+    border: 1px solid var(--color-inference);
+    opacity: 0;
+    transition: opacity var(--duration-default) var(--ease-out-soft);
+    pointer-events: none;
+  }
+
+  .u-region[data-linked='on'] {
+    opacity: 1;
+  }
+
+  /* The panel draws in from the edge it is anchored to. */
+  .u-ask-in {
+    animation: croquis-ask-in var(--duration-slow) var(--ease-settle) both;
+  }
+
+  .scene-camera {
+    transform: translateZ(calc(var(--cam-z, 0) * 1px)) scale(var(--cam-scale, 1))
+      translate(calc(var(--cam-x, 0) * 1%), calc(var(--cam-y, 0) * 1%));
+    transform-origin: 50% 50%;
+    will-change: transform;
+  }
+
+  /* Drafting marks arrive; they do not slide in. */
+  .u-mark-in {
+    animation: croquis-mark-in var(--duration-slow) var(--ease-out-soft) both;
+  }
+
+  .scene-veil {
+    opacity: var(--veil-opacity, 1);
+    filter: blur(calc(var(--veil-blur, 0) * 1px)) brightness(var(--veil-brightness, 1));
+  }
+
+  .fabric-face,
+  .fabric-bolt {
+    --cloth-base: var(--color-cloth-base);
+    --cloth-mid: var(--color-cloth-mid);
+    --cloth-shadow: var(--color-cloth-shadow);
+    --cloth-light: var(--color-cloth-light);
+  }
+
+  .fabric-face {
+    background-image:
+      /* the weave — grain, not folds */
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='260' height='260' filter='url(%23f)' opacity='0.1'/%3E%3C/svg%3E"),
+      /* the folds, before the filter warps them */
+      linear-gradient(
+        var(--fold-angle, 90deg),
+        rgba(23, 21, 18, 0.5) 0%,
+        rgba(87, 80, 73, 0.34) 5%,
+        rgba(23, 21, 18, 0.38) 11%,
+        rgba(87, 80, 73, 0.34) 18%,
+        rgba(23, 21, 18, 0.52) 25%,
+        rgba(87, 80, 73, 0.18) 30%,
+        rgba(23, 21, 18, 0.32) 37%,
+        rgba(87, 80, 73, 0.38) 45%,
+        rgba(23, 21, 18, 0.64) 52%,
+        rgba(87, 80, 73, 0.22) 59%,
+        rgba(23, 21, 18, 0.44) 67%,
+        rgba(87, 80, 73, 0.36) 75%,
+        rgba(23, 21, 18, 0.5) 82%,
+        rgba(87, 80, 73, 0.26) 89%,
+        rgba(23, 21, 18, 0.56) 95%,
+        rgba(23, 21, 18, 0.54) 100%
+      ),
+      /* the hang: the rail above, the weight below */
+      linear-gradient(
+        to bottom,
+        rgba(23, 21, 18, 0.6) 0%,
+        rgba(23, 21, 18, 0) 14%,
+        rgba(43, 40, 35, 0) 66%,
+        rgba(23, 21, 18, 0.5) 100%
+      ),
+      linear-gradient(172deg, var(--cloth-light), var(--cloth-base) 46%, var(--cloth-mid));
+    filter: url(#croquis-drape);
+  }
+
+  .fabric-bolt {
+    background-image:
+      linear-gradient(
+        95deg,
+        rgba(23, 21, 18, 0.88) 0%,
+        rgba(43, 40, 35, 0.44) 27%,
+        rgba(23, 21, 18, 0.84) 53%,
+        rgba(43, 40, 35, 0.34) 78%,
+        rgba(23, 21, 18, 0.92) 100%
+      ),
+      linear-gradient(to bottom, var(--cloth-mid), var(--cloth-shadow));
+    filter: url(#croquis-drape-deep);
+  }
+
+}
+
+@keyframes croquis-ask-in {
+  from {
+    opacity: 0;
+    transform: translateX(3%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes croquis-mark-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes croquis-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Screen-reader-only, but focusable when it needs to be. */
+.sr-only:not(:focus):not(:active) {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}

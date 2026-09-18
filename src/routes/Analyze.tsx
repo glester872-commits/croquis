@@ -297,7 +297,7 @@ export function Analyze() {
               <h1 className="u-statement font-normal">
                 Añade un outfit.
                 <br />
-                Croquis lo desmonta.
+                Croquis lo lee.
               </h1>
 
               {!file ? (

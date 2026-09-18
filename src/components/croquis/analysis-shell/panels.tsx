@@ -206,7 +206,7 @@ function AnalysedRegion({ report }: { report: SegmentationReport }) {
         type="button"
         aria-expanded={open}
         onClick={() => setOpen((was) => !was)}
-        className="u-act-quiet u-meta-sm px-4"
+        className="u-act-quiet px-4"
       >
         {open ? 'Ocultar la región' : 'Ver región analizada'}
       </button>
@@ -505,7 +505,7 @@ export function TrendPanel({ analysis }: { analysis: OutfitAnalysis }) {
             <ClaimStatement claim={signal.claim} className="mt-3.5" />
             <Link
               to={`/tendencias/${signal.trendSlug}`}
-              className="u-act-quiet u-meta-sm mt-4 px-4"
+              className="u-act-quiet mt-4 px-4"
             >
               Ver la ficha de {signal.trendName}
             </Link>

@@ -189,11 +189,14 @@ function Uploader({
   onBrowse,
   onBack,
   canGoBack,
+  coarse,
 }: {
   isDragging: boolean
   onBrowse: () => void
   onBack: () => void
   canGoBack: boolean
+  /** A finger cannot drag a file onto a page, so it is not told to. */
+  coarse: boolean
 }) {
   return (
     // Was a centred panel with equal margins on all four sides and its
@@ -204,7 +207,7 @@ function Uploader({
     <div className="flex h-full flex-col justify-center px-5 py-6 sm:px-7">
       <div className="u-plate-grid gap-y-8">
         <div className="col-span-12 md:col-span-4 md:col-start-1">
-          <h2 className="u-statement">Arrastra aquí una fotografía.</h2>
+          <h2 className="u-statement">{coarse ? "Elige una fotografía." : "Arrastra aquí una fotografía."}</h2>
           <div className="mt-9 flex flex-wrap items-center gap-x-7 gap-y-3">
             <button type="button" onClick={onBrowse} className="u-act">
               Subir look
@@ -246,7 +249,7 @@ function Uploader({
             )}
           />
           <span className="u-meta-sm transition-colors duration-(--duration-fast) group-hover:text-bone">
-            {isDragging ? 'Suelta para añadirlo' : 'Haz clic para elegirla'}
+            {isDragging ? "Suelta para añadirlo" : coarse ? "Toca para elegirla" : "Haz clic para elegirla"}
           </span>
         </button>
       </div>
@@ -404,6 +407,7 @@ export function Landing() {
                 onBrowse={browse}
                 onBack={toArchive}
                 canGoBack={hasOutfits}
+                coarse={coarse}
               />
             ) : archive.status === "loading" ? (
               <div className="flex h-full items-center px-5 sm:px-7">

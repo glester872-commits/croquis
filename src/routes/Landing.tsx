@@ -208,17 +208,11 @@ function Uploader({
       <div className="u-plate-grid gap-y-8">
         <div className="col-span-12 md:col-span-4 md:col-start-1">
           <h2 className="u-statement">{coarse ? "Elige una fotografía." : "Arrastra aquí una fotografía."}</h2>
-          <div className="mt-9 flex flex-wrap items-center gap-x-7 gap-y-3">
-            <button type="button" onClick={onBrowse} className="u-act">
-              Subir look
+          {canGoBack ? (
+            <button type="button" onClick={onBack} className="u-meta u-act-word mt-9">
+              Volver al archivo
             </button>
-            {canGoBack ? (
-              <button type="button" onClick={onBack} className="u-meta u-act-word">
-                Volver al archivo
-              </button>
-            ) : null}
-          </div>
-          <p className="u-note mt-5">O pégala desde el portapapeles.</p>
+          ) : null}
         </div>
 
         <button

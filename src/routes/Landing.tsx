@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 
 import { AccordionGallery, type GalleryItem } from '@/components/croquis/archive/AccordionGallery'
 import { SiteHeader } from '@/components/croquis/SiteHeader'
+import { Opening, OpenFailed } from "@/components/croquis/RouteState"
 import { StudioRoom } from '@/components/croquis/StudioRoom'
 import { FabricCurtain } from '@/components/croquis/immersive-outfit/FabricCurtain'
 import { useOutfitIntake } from '@/components/croquis/outfit-uploader/useOutfitIntake'
@@ -97,7 +98,7 @@ function Intro({ simple }: { simple: boolean }) {
               and no photograph exists until one is added. */}
           <FabricCurtain
             title="Croquis"
-            tagline="Inteligencia de moda a través del outfit"
+            tagline="Archivo de looks"
             simple={simple}
           />
         </StudioRoom>
@@ -167,9 +168,9 @@ function Archive({
           <button
             type="button"
             onClick={onAdd}
-            className="u-act-quiet u-meta-sm px-4"
+            className="u-act-quiet px-4"
           >
-            + Añadir look
+            Añadir look
           </button>
         </div>
       </div>
@@ -347,8 +348,8 @@ export function Landing() {
               >
                 Croquis
               </p>
-              <p className="u-meta-sm u-plate-meta mt-5 tracking-[0.3em]">
-                Inteligencia de moda a través del outfit
+              <p className="u-meta-sm u-plate-meta mt-5">
+                Archivo de looks
               </p>
             </div>
           </div>
@@ -404,19 +405,13 @@ export function Landing() {
                 onBack={toArchive}
                 canGoBack={hasOutfits}
               />
-            ) : archive.status === 'loading' ? (
+            ) : archive.status === "loading" ? (
               <div className="flex h-full items-center px-5 sm:px-7">
-                <p role="status" className="u-meta">Abriendo tu archivo…</p>
+                <Opening what="tu archivo" className="py-0" />
               </div>
-            ) : archive.status === 'error' ? (
-              <div role="alert" className="flex h-full items-center px-5 sm:px-7">
-                <div className="u-read">
-                  <p className="u-meta mb-3 text-interpretation">No se ha podido abrir</p>
-                  <p className="text-[14px] leading-relaxed text-bone-dim">{archive.message}</p>
-                  <button type="button" onClick={archive.reload} className="u-meta u-act-word mt-5">
-                    Reintentar
-                  </button>
-                </div>
+            ) : archive.status === "error" ? (
+              <div className="flex h-full items-center px-5 sm:px-7">
+                <OpenFailed message={archive.message} onRetry={archive.reload} className="py-0" />
               </div>
             ) : hasOutfits ? (
               <Archive

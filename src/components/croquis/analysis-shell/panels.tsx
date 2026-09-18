@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 
 import { ClaimStatement } from '@/components/croquis/evidence/Claim'
-import { ContextualHelp } from '@/components/croquis/analysis-shell/ContextualHelp'
 import { DESIGN_PRINCIPLE, GARMENT_LAYER, TREND_STAGE } from '@/lib/labels'
 import { cn } from '@/lib/utils'
 import type { OutfitAnalysis, SegmentationReport, StyleInfluence } from '@/types'
@@ -13,25 +12,14 @@ import type { OutfitAnalysis, SegmentationReport, StyleInfluence } from '@/types
 export function PanelHeading({
   index,
   title,
-  help,
 }: {
   index: number
   title: string
-  help?: { title: string; description: string; guaranteed?: boolean }
 }) {
   return (
     <div className="mb-4 flex items-baseline gap-3 border-b border-studio-600 pb-2.5">
       <span className="u-num text-bone-mute">{String(index).padStart(2, '0')}</span>
-      <h2 className="flex items-baseline gap-1 text-[15px] font-semibold tracking-[-0.005em]">
-        {title}
-        {help && (
-          <ContextualHelp
-            title={help.title}
-            description={help.description}
-            guaranteed={help.guaranteed}
-          />
-        )}
-      </h2>
+      <h2 className="text-[15px] font-semibold tracking-[-0.005em]">{title}</h2>
     </div>
   )
 }
@@ -68,11 +56,6 @@ export function SilhouettePanel({ analysis }: { analysis: OutfitAnalysis }) {
       <PanelHeading
         index={1}
         title="Silueta y proporción"
-        help={{
-          title: 'Análisis con modelo',
-          description:
-            'La silueta, proporciones y volumen son medidos por un modelo entrenado en composición de looks.',
-        }}
       />
       <p className="font-display text-[26px] leading-tight tracking-[-0.01em]">{silhouette.name}</p>
       <p className="mt-1.5 text-[13px] text-bone-mute">{silhouette.line}</p>
@@ -285,30 +268,36 @@ export function MaterialPanel({
       <PanelHeading
         index={3}
         title={analysis.materials.length > 0 ? 'Paleta del outfit y materiales' : 'Paleta del outfit'}
-        help={{
-          title: 'Medido en píxeles',
-          description: 'La paleta se extrae directamente de la fotografía sin modelos, muestreando los colores dominantes.',
-          guaranteed: true,
-        }}
       />
 
-      <div className="flex h-9 w-full overflow-hidden border border-studio-600">
-        {palette.swatches.map((swatch) => (
-          <span
-            key={swatch.hex}
-            title={`${swatch.name} — ${swatch.share}%`}
-            style={{ backgroundColor: swatch.hex, width: `${swatch.share}%` }}
-          />
-        ))}
-      </div>
-      <ul className="mt-2.5 grid grid-cols-2 gap-x-4 gap-y-1.5">
-        {palette.swatches.map((swatch) => (
-          <li key={swatch.hex} className="flex items-baseline justify-between gap-2">
-            <span className="text-[12.5px] text-bone-dim">{swatch.name}</span>
-            <span className="u-num text-bone-mute">{swatch.share}%</span>
+      {/* The palette was a stacked percentage bar with a two-column
+          legend under it: the share of every colour said three times,
+          in a chart, a word and a figure. It is the product's main
+          result and it was the one element that read as a dashboard.
+
+          It is a specification sheet now. One row per colour, and the
+          row IS the measurement — the block runs as wide as the colour
+          is present, so the length is the figure and the figure is only
+          there for anyone who cannot read a length. Saturated ink
+          belongs to the garments and to nothing else on this page. */}
+      <ol className="mt-1">
+        {palette.swatches.map((swatch, i) => (
+          <li key={swatch.hex} className="border-b border-studio-600 py-2.5 first:border-t">
+            <div className="flex items-baseline gap-3">
+              <span className="u-num w-5 shrink-0 text-bone-mute">{String(i + 1).padStart(2, "0")}</span>
+              <span className="text-[13px] text-bone-dim">{swatch.name}</span>
+              <span className="flex-1" />
+              <span className="u-num text-bone-mute">{swatch.hex}</span>
+              <span className="u-num w-9 text-right tabular-nums text-bone">{swatch.share}%</span>
+            </div>
+            <span
+              aria-hidden
+              className="mt-2 ml-8 block h-3"
+              style={{ backgroundColor: swatch.hex, width: `calc(${swatch.share}% - 2rem)` }}
+            />
           </li>
         ))}
-      </ul>
+      </ol>
       <p className="mt-3 text-[12.5px] leading-relaxed text-bone-mute">{palette.scheme}</p>
 
       {shaky ? (
@@ -374,11 +363,6 @@ export function StyleDnaPanel({
       <PanelHeading
         index={4}
         title="ADN de estilo"
-        help={{
-          title: 'Análisis con modelo',
-          description:
-            'Las influencias de estilo son identificadas por un modelo entrenado en patrones visuales y movimientos históricos de moda.',
-        }}
       />
 
       <ul className="border-t border-studio-600">
@@ -501,11 +485,6 @@ export function TrendPanel({ analysis }: { analysis: OutfitAnalysis }) {
       <PanelHeading
         index={6}
         title="Señales de tendencia"
-        help={{
-          title: 'Análisis con modelo',
-          description:
-            'Las tendencias se detectan reconociendo patrones visuales que coinciden con movimientos actuales y emergentes en moda.',
-        }}
       />
       <ul className="space-y-6">
         {analysis.trendSignals.map((signal) => (

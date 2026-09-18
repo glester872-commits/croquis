@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react'
 
 import { SiteHeader } from '@/components/croquis/SiteHeader'
+import { Opening, OpenFailed } from "@/components/croquis/RouteState"
 import { StudioRoom } from '@/components/croquis/StudioRoom'
 import {
   ACCEPTED_IMAGE_TYPES,
@@ -199,11 +200,6 @@ export function Wardrobe() {
     <StudioRoom className="min-h-dvh">
       <SiteHeader />
 
-      {/* An empty wardrobe is mostly ground, so the ground says whose
-          it is — the same oversized wordmark the empty archive uses.
-          With garments on the table it would sit behind them. */}
-      
-
       <main className="u-page relative z-10">
         <div className="mb-(--rhythm-block) flex flex-wrap items-baseline justify-between gap-4 border-b border-studio-600 pb-4">
           <h1 className="u-title">Mi armario</h1>
@@ -225,16 +221,10 @@ export function Wardrobe() {
           </p>
         ) : null}
 
-        {wardrobe.status === 'loading' ? (
-          <p role="status" className="u-meta py-16">Abriendo tu armario…</p>
-        ) : wardrobe.status === 'error' ? (
-          <div role="alert" className="u-read py-16">
-            <p className="u-meta mb-3 text-interpretation">No se ha podido abrir</p>
-            <p className="text-[14px] leading-relaxed text-bone-dim">{wardrobe.message}</p>
-            <button type="button" onClick={wardrobe.reload} className="u-meta u-act-word mt-5">
-              Reintentar
-            </button>
-          </div>
+        {wardrobe.status === "loading" ? (
+          <Opening what="tu armario" />
+        ) : wardrobe.status === "error" ? (
+          <OpenFailed message={wardrobe.message} onRetry={wardrobe.reload} />
         ) : empty ? (
           <div className="mt-14">
             <div className="u-note-col">

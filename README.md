@@ -1,6 +1,6 @@
 # Croquis
 
-Inteligencia de moda a través del outfit.
+Archivo de looks.
 
 Croquis lee la fotografía de un look: aísla las prendas del fondo, mide la paleta
 del outfit sobre esos píxeles y guarda la pieza en un archivo local que solo vive

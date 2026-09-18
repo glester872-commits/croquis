@@ -210,17 +210,16 @@ export function FabricCurtain({
           />
           <div className="relative">
             <p
-              className="font-display text-bone text-[clamp(40px,6.4vw,92px)] font-bold uppercase leading-none tracking-[0.28em]"
+              className="u-d1 text-plate uppercase"
               style={{ textShadow: '0 2px 30px rgba(16, 16, 16, 0.85)' }}
             >
               {title}
             </p>
-            {/* Bone, not mute: on light cloth the grey that reads as
-              secondary on the studio ground has almost no contrast
-              left, and the line under the wordmark is what the brand
-              actually says. It gets the same shadow the wordmark has. */}
+            {/* Plate, not ink: the cloth is the one dark surface left on the
+              light table, so type on it takes the plate cut — the same
+              exception a caption over a photograph takes. */}
             <p
-              className="u-meta text-paper mt-6 tracking-[0.3em]"
+              className="u-meta text-plate-dim mt-6"
               style={{ textShadow: '0 1px 18px rgba(16, 16, 16, 0.9)' }}
             >
               {tagline}

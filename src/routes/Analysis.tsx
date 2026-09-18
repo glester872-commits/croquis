@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 
-import { AnalyzingIndicator } from '@/components/croquis/AnalyzingIndicator'
+import { Opening } from "@/components/croquis/RouteState"
 import { AskTrigger } from '@/components/croquis/ask/AskCroquis'
 import { SiteHeader, SiteNav } from '@/components/croquis/SiteHeader'
 import { StudioRoom } from '@/components/croquis/StudioRoom'
@@ -23,7 +23,6 @@ import {
 } from '@/components/croquis/immersive-outfit/OutfitPlate'
 import { useCoarsePointer, usePrefersReducedMotion } from '@/hooks/useMediaPreference'
 import { useOutfitAnalysis } from '@/hooks/useOutfitAnalysis'
-import { usePointerTilt } from '@/hooks/usePointerTilt'
 import { useScrollScene } from '@/hooks/useScrollScene'
 import { useTopScrub } from '@/hooks/useTopScrub'
 import {
@@ -354,7 +353,6 @@ function ScrollScene({ analysis }: { analysis: OutfitAnalysis }) {
   const boxRef = useRef<HTMLDivElement | null>(null)
   /** The plate itself, measured unscaled. */
   const plateRef = useRef<HTMLDivElement | null>(null)
-  const tiltRef = usePointerTilt<HTMLDivElement>({ rotate: 2.5, shift: 8, perspective: 1700 })
   const [frame, setFrame] = useState<Frame>({ act: 0, step: 0 })
 
   const { garments, materials, styleDna, image } = analysis
@@ -535,25 +533,22 @@ function ScrollScene({ analysis }: { analysis: OutfitAnalysis }) {
         style={{ height: `${((1 + screens + REVEAL_SCREENS) * 100).toFixed(1)}dvh` }}
       >
         <div className="sticky top-0 h-dvh">
-          <StudioRoom ref={roomRef} className="h-full [perspective:1700px]">
-            <div
-              ref={tiltRef}
-              className="relative h-full"
-              style={{ opacity: 'calc(1 - var(--recess, 0) * 0.55)' }}
-            >
-            </div>
+          <StudioRoom ref={roomRef} className="h-full">
 
             <header
-              className="absolute inset-x-0 top-0 z-50 flex items-center gap-3 py-4 lg:gap-5"
-              style={{ paddingInline: 'clamp(16px, 2.2vw, 28px)' }}
+              className="absolute inset-x-0 top-0 z-50 flex items-baseline gap-4 border-b border-studio-600 py-4 lg:gap-6"
+              style={{ paddingInline: 'var(--page-gutter)' }}
             >
+              {/* One wordmark, one setting. It was 18px bold at +0.3em
+                  here and -0.02em in `SiteHeader` — the same three
+                  words drawn two different ways, one screen apart. */}
               <Link
                 to="/"
-                className="font-display text-[18px] font-bold uppercase tracking-[0.3em] hover:text-bone"
+                className="inline-flex shrink-0 items-baseline font-display text-[19px] font-bold uppercase leading-none tracking-[-0.02em] transition-colors duration-(--duration-fast) hover:text-bone-dim"
               >
                 Croquis
               </Link>
-              <span className="u-meta">{analysis.title}</span>
+              <span className="u-meta-sm truncate">{analysis.title}</span>
               <span className="flex-1" />
               <SiteNav />
               <AskTrigger className="ml-6 border-l border-studio-600 pl-6" />
@@ -569,7 +564,7 @@ function ScrollScene({ analysis }: { analysis: OutfitAnalysis }) {
                 gridTemplateColumns:
                   'clamp(138px, 16vw, 240px) minmax(0, 1fr) clamp(228px, 26vw, 360px)',
                 gap: 'clamp(16px, 2.4vw, 36px)',
-                paddingInline: 'clamp(16px, 2.2vw, 28px)',
+                paddingInline: "var(--page-gutter)",
               }}
             >
               {/* LEFT — the opening headline gives way to the rail */}
@@ -579,7 +574,7 @@ function ScrollScene({ analysis }: { analysis: OutfitAnalysis }) {
                   style={{ opacity: 'var(--editorial, 1)' }}
                   aria-hidden={frame.act > 0}
                 >
-                  <h1 className="font-display text-[clamp(28px,2.4vw,40px)] font-normal leading-[0.92] tracking-[-0.025em] text-balance">
+                  <h1 className="u-d3 text-balance">
                     {analysis.title}
                   </h1>
                 </div>
@@ -604,7 +599,7 @@ function ScrollScene({ analysis }: { analysis: OutfitAnalysis }) {
                               aria-hidden
                               className={cn(
                                 'h-px transition-all duration-(--duration-default) ease-(--ease-settle)',
-                                isOn ? 'w-7 bg-bone' : 'w-3.5 bg-bone/25 group-hover:bg-bone/50',
+                                isOn ? "w-7 bg-bone" : "w-3.5 bg-studio-500 group-hover:bg-bone-mute",
                               )}
                             />
                             <span
@@ -642,8 +637,6 @@ function ScrollScene({ analysis }: { analysis: OutfitAnalysis }) {
                       the room it has, so a narrow window narrows the
                       columns rather than the subject. */}
                   <div
-                    data-tilt-depth="0.45"
-                    data-tilt-rotate="1"
                     style={{ width: `min(100%, calc(min(78dvh, 820px) * ${ratio.toFixed(4)}))` }}
                   >
                     {/* Behind the cloth the photograph is not a still:
@@ -660,12 +653,19 @@ function ScrollScene({ analysis }: { analysis: OutfitAnalysis }) {
                           : undefined
                       }
                     >
-                      {/* The shadow goes inside the camera, so it travels
-                          with the plate. On the wrapper it stays at full
-                          size and paints as a slab behind a scaled photo. */}
+                      {/* The contact shadow goes inside the camera, so it
+                          travels with the plate. On the wrapper it stays
+                          at full size and paints as a slab behind a
+                          scaled photograph.
+
+                          It is `u-print`: one pixel at six per cent, the
+                          shadow a print casts lying on a table. What was
+                          here was a 90px black bloom, which is an
+                          elevation shadow, and nothing on this surface
+                          is elevated. */}
                       <div
                         ref={plateRef}
-                        className="scene-camera w-full shadow-[0_40px_90px_-24px_rgba(0,0,0,0.7)]"
+                        className="scene-camera u-print w-full"
                       >
                         <OutfitPlate
                           image={analysis.image}
@@ -725,7 +725,7 @@ function ScrollScene({ analysis }: { analysis: OutfitAnalysis }) {
                       type="button"
                       aria-pressed={reading}
                       onClick={() => setReadingAct(reading ? null : actId)}
-                      className="u-act-quiet u-meta-sm mt-4 px-4"
+                      className="u-act-quiet mt-4 px-4"
                     >
                       {reading ? 'Volver a la escena' : 'Leer el texto completo'}
                     </button>
@@ -736,7 +736,7 @@ function ScrollScene({ analysis }: { analysis: OutfitAnalysis }) {
 
             <footer
               className="absolute inset-x-0 bottom-0 z-50 flex items-center gap-4 pb-4 lg:gap-6"
-              style={{ paddingInline: 'clamp(16px, 2.2vw, 28px)' }}
+              style={{ paddingInline: "var(--page-gutter)" }}
             >
               <span className="flex-1" />
               <span className="u-meta-sm">{analysis.image.credit}</span>
@@ -924,7 +924,7 @@ function DocumentAnalysis({
           >
             {entry.id === 'enter' ? (
               <div>
-                <h1 className="font-display text-[clamp(26px,6vw,32px)] leading-[0.95] tracking-[-0.025em] text-balance">
+                <h1 className="u-d2 text-balance">
                   {analysis.title}
                 </h1>
               </div>
@@ -950,35 +950,49 @@ function DocumentAnalysis({
   )
 }
 
+/**
+ * A look that is not there, or would not open.
+ *
+ * It was a 44ch block centred in an empty viewport with no header on
+ * it — the shape of a modal, on a page that is not one, with the
+ * product's own name missing from the one screen where somebody is
+ * most likely to wonder where they are. It is a plate now: the header
+ * stays, the block hangs off the left edge under a rule, and the two
+ * ways out sit on the same baseline as everything else.
+ */
 function Notice({
   title,
   body,
-  tone = 'neutral',
+  tone = "neutral",
 }: {
   title: string
   body?: string
   /** A failure is not a wait. It says so, in the colour failures use. */
-  tone?: 'neutral' | 'error'
+  tone?: "neutral" | "error"
 }) {
   return (
-    <StudioRoom className="grid min-h-dvh place-items-center px-6">
-      <div
-        className="max-w-[44ch] text-center"
-        {...(tone === 'error' ? { role: 'alert' as const } : { role: 'status' as const })}
-      >
-        <p className={tone === 'error' ? 'u-meta mb-3 text-interpretation' : 'u-meta mb-3'}>
-          {title}
-        </p>
-        {body ? <p className="text-[15px] leading-relaxed text-bone-dim">{body}</p> : null}
-        <div className="mt-7 flex flex-wrap items-center justify-center gap-x-7 gap-y-3">
-          <Link to="/outfits" className="u-act">
-            Mis outfits
-          </Link>
-          <Link to="/" className="u-meta u-act-word">
-            Volver al inicio
-          </Link>
+    <StudioRoom className="min-h-dvh">
+      <SiteHeader />
+      <main className="u-page">
+        <div
+          className="u-read border-t border-studio-600 pt-5"
+          {...(tone === "error" ? { role: "alert" as const } : { role: "status" as const })}
+        >
+          <span className="u-num text-bone-mute">00</span>
+          <p className={cn("u-d3 mt-3", tone === "error" && "text-interpretation")}>{title}</p>
+          {body ? (
+            <p className="mt-4 text-[15px] leading-relaxed text-bone-dim">{body}</p>
+          ) : null}
+          <div className="mt-(--rhythm-block) flex flex-wrap items-center gap-x-7 gap-y-3">
+            <Link to="/outfits" className="u-act">
+              Mis outfits
+            </Link>
+            <Link to="/analizar" className="u-meta u-act-word">
+              Añadir un look
+            </Link>
+          </div>
         </div>
-      </div>
+      </main>
     </StudioRoom>
   )
 }
@@ -990,20 +1004,13 @@ export function Analysis() {
   const reduced = usePrefersReducedMotion()
   const coarse = useCoarsePointer()
 
-  if (state.status === 'loading') {
+  if (state.status === "loading") {
     return (
-      <StudioRoom className="grid min-h-dvh place-items-center px-6">
-        <div className="max-w-[44ch] text-center" role="status">
-          <AnalyzingIndicator />
-          <div className="mt-7 flex flex-wrap items-center justify-center gap-x-7 gap-y-3">
-            <Link to="/outfits" className="u-act">
-              Mis outfits
-            </Link>
-            <Link to="/" className="u-meta u-act-word">
-              Volver al inicio
-            </Link>
-          </div>
-        </div>
+      <StudioRoom className="min-h-dvh">
+        <SiteHeader />
+        <main className="u-page">
+          <Opening what="el análisis" />
+        </main>
       </StudioRoom>
     )
   }

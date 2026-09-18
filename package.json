@@ -2,7 +2,7 @@
   "name": "croquis",
   "version": "1.0.0",
   "private": true,
-  "description": "Inteligencia de moda a través del outfit: aísla las prendas de una fotografía, mide su paleta y guarda el look en el navegador.",
+  "description": "Archivo de looks: aísla las prendas de una fotografía, mide su paleta y guarda el look en el navegador.",
   "license": "UNLICENSED",
   "type": "module",
   "scripts": {

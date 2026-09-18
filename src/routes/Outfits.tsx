@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 
 import { ArchiveGallery, type ArchiveItem } from '@/components/croquis/archive/ArchiveGallery'
 import { SiteHeader } from '@/components/croquis/SiteHeader'
+import { Opening, OpenFailed } from "@/components/croquis/RouteState"
 import { StudioRoom } from '@/components/croquis/StudioRoom'
 import { useObjectUrls } from '@/hooks/useObjectUrls'
 import { useOutfits } from '@/hooks/useOutfits'
@@ -207,9 +208,9 @@ export function Outfits() {
               </span>
               <Link
                 to="/analizar"
-                className="u-act-quiet u-meta-sm whitespace-nowrap px-4"
+                className="u-act-quiet whitespace-nowrap px-4"
               >
-                + Analizar otro look
+                Analizar otro look
               </Link>
               <label className="flex items-center gap-2">
                 <span className="u-meta-sm">Orden</span>
@@ -229,16 +230,10 @@ export function Outfits() {
           ) : null}
         </div>
 
-        {archive.status === 'loading' ? (
-          <p role="status" className="u-meta py-16">Abriendo tu archivo…</p>
-        ) : archive.status === 'error' ? (
-          <div role="alert" className="u-read py-16">
-            <p className="u-meta mb-3 text-interpretation">No se ha podido abrir</p>
-            <p className="text-[14px] leading-relaxed text-bone-dim">{archive.message}</p>
-            <button type="button" onClick={archive.reload} className="u-meta u-act-word mt-5">
-              Reintentar
-            </button>
-          </div>
+        {archive.status === "loading" ? (
+          <Opening what="tu archivo" />
+        ) : archive.status === "error" ? (
+          <OpenFailed message={archive.message} onRetry={archive.reload} />
         ) : items.length === 0 ? (
           <EmptyLibrary />
         ) : (

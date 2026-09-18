@@ -10,6 +10,7 @@ import {
 import { AskPanel, AskProvider } from '@/components/croquis/ask/AskCroquis'
 import { SiteHeader } from '@/components/croquis/SiteHeader'
 import { StudioRoom } from '@/components/croquis/StudioRoom'
+import { Opening } from "@/components/croquis/RouteState"
 import { Landing } from '@/routes/Landing'
 
 /**
@@ -61,9 +62,9 @@ function RouteFallback() {
   return (
     <StudioRoom className="min-h-dvh">
       <SiteHeader />
-      <p role="status" className="u-page u-meta">
-        Abriendo…
-      </p>
+      <div className="u-page">
+        <Opening what="la página" />
+      </div>
     </StudioRoom>
   )
 }

@@ -842,6 +842,20 @@
   }
 }
 
+/* The mark travelling along a measuring rule. It reaches the end and
+   returns, because a measurement is taken and read back, not spun. */
+@keyframes croquis-measure {
+  0% {
+    transform: translateX(-100%);
+  }
+  50% {
+    transform: translateX(200%);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
 /* Screen-reader-only, but focusable when it needs to be. */
 .sr-only:not(:focus):not(:active) {
   position: absolute;

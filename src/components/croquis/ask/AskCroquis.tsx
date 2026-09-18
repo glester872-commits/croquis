@@ -119,6 +119,7 @@ export function AskPanel() {
   const [draft, setDraft] = useState('')
   const [suggestions, setSuggestions] = useState<readonly string[]>([])
   const logRef = useRef<HTMLDivElement | null>(null)
+  const panelRef = useRef<HTMLElement | null>(null)
   const fieldRef = useRef<HTMLTextAreaElement | null>(null)
 
   /* Openers are offered only where the reading can actually answer
@@ -146,15 +147,46 @@ export function AskPanel() {
     if (open) fieldRef.current?.focus()
   }, [open])
 
-  // Escape closes, from anywhere inside the panel or out of it.
+  /* Escape closes, and Tab stays inside.
+
+     On a phone this panel is `inset-0`: it covers the archive
+     completely. Without containment, Tab walked straight off the last
+     control into a page the reader could no longer see, with nothing
+     to say it had happened and no way back but Shift+Tab counted
+     blind. The dialog owns the keyboard for as long as it owns the
+     screen. */
   useEffect(() => {
     if (!open) return
+    const panel = panelRef.current
     const onKey = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') close()
+      if (event.key === "Escape") {
+        close()
+        return
+      }
+      if (event.key !== "Tab" || !panel) return
+      const stops = panel.querySelectorAll<HTMLElement>(
+        "a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex='-1'])",
+      )
+      const first = stops[0]
+      const last = stops[stops.length - 1]
+      if (!first || !last) return
+      const on = document.activeElement
+      if (event.shiftKey ? on === first || !panel.contains(on) : on === last) {
+        event.preventDefault()
+        ;(event.shiftKey ? last : first).focus()
+      }
     }
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
+    window.addEventListener("keydown", onKey)
+    return () => window.removeEventListener("keydown", onKey)
   }, [open, close])
+
+  /* Focus goes back where it came from. Returning a reader to the top
+     of the document after they closed a panel loses their place. */
+  useEffect(() => {
+    if (!open) return
+    const opener = document.activeElement as HTMLElement | null
+    return () => opener?.focus?.()
+  }, [open])
 
   const submit = () => {
     const asked = draft.trim()
@@ -167,7 +199,10 @@ export function AskPanel() {
 
   return (
     <aside
+      ref={panelRef}
       id="ask-croquis"
+      role="dialog"
+      aria-modal="true"
       aria-label="Ask Croquis"
       className={cn(
         // A panel of the same room, drawn in from the right. Full width
@@ -200,12 +235,32 @@ export function AskPanel() {
                     {message.content}
                   </p>
                 ) : (
-                  <div className="space-y-3 text-[14px] leading-relaxed text-bone-dim">
-                    {message.content.split(/\n{2,}/).map((para, i) => (
-                      <p key={i} className="whitespace-pre-wrap">
-                        {para}
-                      </p>
-                    ))}
+                  /* The stylist. Bodoni italic in terracotta was loaded
+                     from the first commit and spent once on a marketing
+                     headline: reserved for the machine's voice and never
+                     given it.
+
+                     The opening sentence takes it — that IS the reading,
+                     and it is known by how it is set rather than by an
+                     avatar, a bubble or a badge with a model name on it.
+                     What follows stays in the working face, because an
+                     answer of six italic paragraphs is a poster, not a
+                     reply. */
+                  <div className="space-y-3">
+                    {message.content.split(/\n{2,}/).map((para, i) =>
+                      i === 0 ? (
+                        <p key={i} className="u-stylist whitespace-pre-wrap">
+                          {para}
+                        </p>
+                      ) : (
+                        <p
+                          key={i}
+                          className="u-note-col whitespace-pre-wrap text-[14px] leading-relaxed text-bone-dim"
+                        >
+                          {para}
+                        </p>
+                      ),
+                    )}
                   </div>
                 )}
               </li>

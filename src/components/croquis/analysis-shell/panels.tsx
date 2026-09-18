@@ -24,6 +24,24 @@ export function PanelHeading({
   )
 }
 
+/** A row of measured terms, ruled top and bottom — the same reading
+ *  used by the silhouette and its expanded proportions view. */
+function MeasureList({ rows }: { rows: readonly (readonly [string, string])[] }) {
+  return (
+    <dl className="mt-5 border-t border-studio-600">
+      {rows.map(([term, value]) => (
+        <div
+          key={term}
+          className="flex items-baseline justify-between gap-4 border-b border-studio-600 py-2"
+        >
+          <dt className="u-meta-sm">{term}</dt>
+          <dd className="text-right text-[12.5px] text-bone-dim">{value}</dd>
+        </div>
+      ))}
+    </dl>
+  )
+}
+
 /** Shown when a reading is unavailable, naming which one. */
 export function UnreadPanel({
   index,
@@ -60,22 +78,14 @@ export function SilhouettePanel({ analysis }: { analysis: OutfitAnalysis }) {
       <p className="font-display text-[26px] leading-tight tracking-[-0.01em]">{silhouette.name}</p>
       <p className="mt-1.5 text-[13px] text-bone-mute">{silhouette.line}</p>
 
-      <dl className="mt-5 border-t border-studio-600">
-        {[
+      <MeasureList
+        rows={[
           ['Superior : inferior', `${upper} : ${lower}`],
           ['Hombro', silhouette.shoulder],
           ['Cintura', silhouette.waist],
           ['Volumen', silhouette.volume],
-        ].map(([term, value]) => (
-          <div
-            key={term}
-            className="flex items-baseline justify-between gap-4 border-b border-studio-600 py-2"
-          >
-            <dt className="u-meta-sm">{term}</dt>
-            <dd className="text-right text-[12.5px] text-bone-dim">{value}</dd>
-          </div>
-        ))}
-      </dl>
+        ]}
+      />
 
       <ClaimStatement claim={silhouette.claim} className="mt-5" />
     </div>
@@ -111,21 +121,13 @@ export function ProportionsPanel({ analysis }: { analysis: OutfitAnalysis }) {
         <p className="mt-5 text-[13.5px] leading-relaxed text-bone-dim">{section.reading}</p>
       ) : null}
 
-      <dl className="mt-5 border-t border-studio-600">
-        {[
+      <MeasureList
+        rows={[
           ['Hombro', analysis.silhouette.shoulder],
           ['Cintura', analysis.silhouette.waist],
           ['Volumen', analysis.silhouette.volume],
-        ].map(([term, value]) => (
-          <div
-            key={term}
-            className="flex items-baseline justify-between gap-4 border-b border-studio-600 py-2"
-          >
-            <dt className="u-meta-sm">{term}</dt>
-            <dd className="text-right text-[12.5px] text-bone-dim">{value}</dd>
-          </div>
-        ))}
-      </dl>
+        ]}
+      />
 
       {section?.claims[0] ? <ClaimStatement claim={section.claims[0]} className="mt-5" /> : null}
     </div>

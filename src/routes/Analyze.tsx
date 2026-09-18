@@ -300,18 +300,7 @@ export function Analyze() {
                 Croquis lo lee.
               </h1>
 
-              {!file ? (
-                <>
-                  <button
-                    type="button"
-                    onClick={browse}
-                    className="u-act mt-10"
-                  >
-                    Subir look
-                  </button>
-                  <p className="u-note mt-5">O pégala desde el portapapeles.</p>
-                </>
-              ) : (
+              {!file ? null : (
                 <form
                   className="mt-9"
                   onSubmit={(event) => {
